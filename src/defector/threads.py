@@ -6,6 +6,8 @@ only once and before any inter-op work starts. Applying it as an import side
 effect is therefore the reliable option.
 """
 
+import contextlib
+
 import torch
 
 from defector.settings import settings
@@ -19,11 +21,10 @@ def apply() -> None:
         return
 
     torch.set_num_threads(settings.torch_num_threads)
-    try:
+
+    # Raises if already set or if inter-op work has started. Not fatal.
+    with contextlib.suppress(RuntimeError):
         torch.set_num_interop_threads(1)
-    except RuntimeError:
-        # Already set, or inter-op work has started. Not fatal.
-        pass
 
     _applied = True
 
