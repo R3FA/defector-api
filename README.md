@@ -40,9 +40,17 @@ Three part categories from MVTec AD are supported, each with its own model:
 | Disk | ~6 GB (dataset ~4.9 GiB + models) |
 
 Note on Python versions: `anomalib` 2.6.0 declares support for 3.10 to 3.12 and
-its CI tests 3.10. This project is developed on 3.14, outside that range. If an
-import or a training run fails in an unexpected place, the interpreter version
-is the first thing to rule out.
+its CI tests 3.10. This project runs on **3.14.7**, outside that range. Every
+dependency resolved to a `cp314` wheel except `FrEIA`, which has no wheel and
+builds cleanly from source. Imports and a PatchCore forward pass are verified.
+
+One known consequence of being off the tested path: `torch` emits
+`FutureWarning: torch.jit.script is not supported in Python 3.14+ and may break`
+on import. It is a warning today. If something fails in an unexplained way
+later, the interpreter version is the first thing to rule out.
+
+`requirements.lock.txt` pins the exact working set, so the environment is
+reproducible regardless of what upstream claims to support.
 
 ## Setup
 
@@ -146,7 +154,7 @@ scripts/               training, evaluation and benchmarking entry points
 ## Roadmap
 
 - [x] Project skeleton and configuration
-- [ ] Environment and dependency lock
+- [x] Environment and dependency lock
 - [ ] Dataset validation
 - [ ] PatchCore training and evaluation
 - [ ] Category classifier and routing ablation
