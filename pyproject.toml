@@ -1,0 +1,53 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "defector-api"
+version = "0.1.0"
+description = "Automated visual quality control for machine parts using unsupervised anomaly detection (PatchCore, MVTec AD)"
+readme = "README.md"
+license = { text = "GPL-2.0-only" }
+authors = [{ name = "Faris Skopak", email = "faris.skopak87@gmail.com" }]
+
+# Upstream anomalib declares support up to 3.12; this project runs on the
+# system 3.14 by choice. Kept open so pip does not block that.
+requires-python = ">=3.12"
+
+dependencies = [
+    # Model and data
+    "anomalib==2.6.0",
+    "torch==2.14.0",
+    "torchvision==0.29.0",
+    # Web layer
+    "fastapi==0.141.1",
+    "uvicorn==0.52.4",
+    "python-multipart==0.0.32",
+    # Database
+    "sqlmodel==0.0.42",
+    # Configuration and classifier serialization
+    "pydantic-settings>=2.7",
+    "joblib>=1.4",
+]
+
+[project.optional-dependencies]
+dev = ["ruff>=0.9", "pytest>=8.3", "httpx>=0.28"]
+
+[project.urls]
+Repository = "https://github.com/R3FA/defector-api"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "scripts"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "PTH", "RUF"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

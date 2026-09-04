@@ -216,3 +216,25 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# --- Project data and artifacts ---
+
+# MVTec AD dataset (~4.9 GiB), downloaded locally, never committed
+datasets/
+
+# Lightning checkpoints and training output
+results/
+
+# Generated artifacts. Glob, not "artifacts/", so the negations below work.
+artifacts/*
+!artifacts/metrics.json
+!artifacts/latency.json
+!artifacts/ablation.csv
+
+# User uploads and generated heatmaps
+storage/
+
+# SQLite analysis history
+*.db
+*.db-shm
+*.db-wal
