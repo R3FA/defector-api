@@ -1,0 +1,43 @@
+{
+  "images": 425,
+  "calibration_samples": 40,
+  "calibration": {
+    "screw": {
+      "mu": 8.79118058681488,
+      "sigma": 0.12634048647611223
+    },
+    "metal_nut": {
+      "mu": 9.79802987575531,
+      "sigma": 0.13291575669014097
+    },
+    "cable": {
+      "mu": 11.676047372817994,
+      "sigma": 0.13304884345108928
+    }
+  },
+  "strategies": {
+    "A normalised pred_score": {
+      "accuracy": 0.8682,
+      "errors": 56,
+      "ties": 80
+    },
+    "B raw pred_score": {
+      "accuracy": 0.9953,
+      "errors": 2,
+      "ties": 0
+    },
+    "C mean raw distance": {
+      "accuracy": 1.0,
+      "errors": 0,
+      "ties": 0
+    },
+    "D z-calibrated distance": {
+      "accuracy": 1.0,
+      "errors": 0,
+      "ties": 0
+    }
+  },
+  "linear_probe_accuracy": 1.0,
+  "saturated_at_one": 415,
+  "seconds": 33.5
+}

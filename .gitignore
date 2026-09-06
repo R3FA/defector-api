@@ -231,6 +231,7 @@ artifacts/*
 !artifacts/classifier.json
 !artifacts/latency.json
 !artifacts/ablation.csv
+!artifacts/ablation.json
 
 # User uploads and generated heatmaps
 storage/
