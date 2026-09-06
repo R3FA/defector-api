@@ -31,9 +31,19 @@ def classifier_transform():
 
 
 def open_image(source: bytes | str | Path) -> Image.Image:
-    """Decode an upload or a file into an RGB image."""
+    """Decode an upload or a file into an RGB image.
+
+    convert() returns a new object that does not carry the format attribute,
+    which Pillow only sets on images opened from a source. The format is
+    reattached because upload validation establishes the real file type from it
+    rather than trusting the client's Content-Type.
+    """
     handle = io.BytesIO(source) if isinstance(source, bytes) else source
-    return Image.open(handle).convert("RGB")
+    with Image.open(handle) as decoded:
+        image_format = decoded.format
+        converted = decoded.convert("RGB")
+    converted.format = image_format
+    return converted
 
 
 def to_tensor(image: Image.Image) -> torch.Tensor:
