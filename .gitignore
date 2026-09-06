@@ -229,6 +229,7 @@ results/
 artifacts/*
 !artifacts/metrics.json
 !artifacts/classifier.json
+!artifacts/evaluation.json
 !artifacts/latency.json
 !artifacts/ablation.csv
 !artifacts/ablation.json
