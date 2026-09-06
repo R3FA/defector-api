@@ -159,7 +159,7 @@ scripts/               training, evaluation and benchmarking entry points
 - [x] PatchCore training and evaluation
 - [x] Category classifier
 - [x] Routing ablation
-- [ ] Inference layer and heatmap rendering
+- [x] Inference layer and heatmap rendering
 - [ ] FastAPI endpoints and analysis history
 - [ ] Latency benchmark
 
