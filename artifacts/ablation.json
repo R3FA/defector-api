@@ -3,27 +3,27 @@
   "calibration_samples": 40,
   "calibration": {
     "screw": {
-      "mu": 8.79118058681488,
-      "sigma": 0.12634048647611223
+      "mu": 28.085978078842164,
+      "sigma": 0.32359997827589654
     },
     "metal_nut": {
-      "mu": 9.79802987575531,
-      "sigma": 0.13291575669014097
+      "mu": 32.41564769744873,
+      "sigma": 0.4366535448032997
     },
     "cable": {
-      "mu": 11.676047372817994,
-      "sigma": 0.13304884345108928
+      "mu": 35.17564105987549,
+      "sigma": 0.30284977048541356
     }
   },
   "strategies": {
     "A normalised pred_score": {
-      "accuracy": 0.8682,
-      "errors": 56,
-      "ties": 80
+      "accuracy": 0.8329,
+      "errors": 71,
+      "ties": 104
     },
     "B raw pred_score": {
-      "accuracy": 0.9953,
-      "errors": 2,
+      "accuracy": 0.9976,
+      "errors": 1,
       "ties": 0
     },
     "C mean raw distance": {
@@ -38,6 +38,6 @@
     }
   },
   "linear_probe_accuracy": 1.0,
-  "saturated_at_one": 415,
-  "seconds": 33.5
+  "saturated_at_one": 425,
+  "seconds": 119.5
 }

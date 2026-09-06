@@ -233,6 +233,11 @@ artifacts/*
 !artifacts/latency.json
 !artifacts/ablation.csv
 !artifacts/ablation.json
+!artifacts/metrics_resnet18.json
+!artifacts/evaluation_resnet18.json
+!artifacts/latency_resnet18.json
+!artifacts/ablation_resnet18.json
+!artifacts/ablation_resnet18.csv
 
 # User uploads and generated heatmaps
 storage/

@@ -133,10 +133,29 @@ Every path, hyperparameter and limit lives in `src/defector/settings.py` and can
 be overridden with `DEFECTOR_`-prefixed environment variables or a `.env` file:
 
 ```bash
-DEFECTOR_BACKBONE=wide_resnet50_2      # final numbers for the thesis
+DEFECTOR_BACKBONE=wide_resnet50_2      # what the committed results use
 DEFECTOR_CORESET_SAMPLING_RATIO=0.01
 DEFECTOR_TORCH_NUM_THREADS=12
 ```
+
+## Results
+
+Image-level AUROC with `wide_resnet50_2` and a 1% coreset, on CPU, against the
+figures anomalib publishes for the same backbone:
+
+| category | measured | published | delta |
+|---|---|---|---|
+| screw | 0.9738 | 0.960 | +0.0138 |
+| metal_nut | 0.9990 | 0.994 | +0.0050 |
+| cable | 0.9908 | 0.990 | +0.0008 |
+
+`artifacts/` also carries the results for `resnet18` under `*_resnet18.json`,
+so the backbone comparison is reproducible without retraining.
+
+A separability metric is not an operating point. At the threshold anomalib
+calibrates, screw reaches recall 1.0000 while rejecting 37 of 41 good screws,
+and improving the backbone did not change that count. See
+`artifacts/evaluation.json` and the reasoning in `scripts/04_evaluate.py`.
 
 ## Project structure
 

@@ -1,0 +1,67 @@
+{
+  "config": {
+    "backbone": "resnet18",
+    "layers": [
+      "layer2",
+      "layer3"
+    ],
+    "coreset_sampling_ratio": 0.01,
+    "num_neighbors": 9,
+    "image_size": [
+      256,
+      256
+    ],
+    "center_crop_size": [
+      224,
+      224
+    ],
+    "accelerator": "cpu"
+  },
+  "runs": [
+    {
+      "category": "screw",
+      "metrics": {
+        "image_AUROC": 0.952654242515564,
+        "image_F1Max": 0.936170220375061,
+        "image_F1Score": 0.9316239356994629,
+        "pixel_AUROC": 0.9823424220085144,
+        "pixel_F1Score": 0.37753960490226746,
+        "pixel_AUPRO": 0.9050683975219727
+      },
+      "fit_seconds": 188.1,
+      "test_seconds": 19.0,
+      "checkpoint": "/home/refa/Desktop/Diplomski/app/defector-api/results/screw/Patchcore/MVTecAD/screw/latest/weights/lightning/model.ckpt",
+      "checkpoint_exists": true
+    },
+    {
+      "category": "metal_nut",
+      "metrics": {
+        "image_AUROC": 0.9960899353027344,
+        "image_F1Max": 0.9841269850730896,
+        "image_F1Score": 0.978723406791687,
+        "pixel_AUROC": 0.9740709066390991,
+        "pixel_F1Score": 0.8150002956390381,
+        "pixel_AUPRO": 0.8947682976722717
+      },
+      "fit_seconds": 91.6,
+      "test_seconds": 16.0,
+      "checkpoint": "/home/refa/Desktop/Diplomski/app/defector-api/results/metal_nut/Patchcore/MVTecAD/metal_nut/latest/weights/lightning/model.ckpt",
+      "checkpoint_exists": true
+    },
+    {
+      "category": "cable",
+      "metrics": {
+        "image_AUROC": 0.9814467430114746,
+        "image_F1Max": 0.9555555582046509,
+        "image_F1Score": 0.9497206807136536,
+        "pixel_AUROC": 0.973529577255249,
+        "pixel_F1Score": 0.6269238591194153,
+        "pixel_AUPRO": 0.9063307046890259
+      },
+      "fit_seconds": 111.7,
+      "test_seconds": 25.0,
+      "checkpoint": "/home/refa/Desktop/Diplomski/app/defector-api/results/cable/Patchcore/MVTecAD/cable/latest/weights/lightning/model.ckpt",
+      "checkpoint_exists": true
+    }
+  ]
+}
