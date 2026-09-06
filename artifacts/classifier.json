@@ -1,0 +1,29 @@
+{
+  "backbone": "resnet18",
+  "feature_dim": 512,
+  "train_images": 764,
+  "test_images": 425,
+  "cv_accuracy_mean": 1.0,
+  "cv_accuracy_std": 0.0,
+  "test_accuracy": 1.0,
+  "confidence_threshold": 0.9,
+  "below_threshold": 1,
+  "confusion_matrix": [
+    [
+      160,
+      0,
+      0
+    ],
+    [
+      0,
+      115,
+      0
+    ],
+    [
+      0,
+      0,
+      150
+    ]
+  ],
+  "extract_seconds": 55.6
+}

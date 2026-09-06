@@ -228,6 +228,7 @@ results/
 # Generated artifacts. Glob, not "artifacts/", so the negations below work.
 artifacts/*
 !artifacts/metrics.json
+!artifacts/classifier.json
 !artifacts/latency.json
 !artifacts/ablation.csv
 

@@ -157,7 +157,8 @@ scripts/               training, evaluation and benchmarking entry points
 - [x] Environment and dependency lock
 - [x] Dataset validation
 - [x] PatchCore training and evaluation
-- [ ] Category classifier and routing ablation
+- [x] Category classifier
+- [ ] Routing ablation
 - [ ] Inference layer and heatmap rendering
 - [ ] FastAPI endpoints and analysis history
 - [ ] Latency benchmark
