@@ -155,8 +155,8 @@ scripts/               training, evaluation and benchmarking entry points
 
 - [x] Project skeleton and configuration
 - [x] Environment and dependency lock
-- [ ] Dataset validation
-- [ ] PatchCore training and evaluation
+- [x] Dataset validation
+- [x] PatchCore training and evaluation
 - [ ] Category classifier and routing ablation
 - [ ] Inference layer and heatmap rendering
 - [ ] FastAPI endpoints and analysis history
