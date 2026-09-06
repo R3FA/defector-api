@@ -160,7 +160,7 @@ scripts/               training, evaluation and benchmarking entry points
 - [x] Category classifier
 - [x] Routing ablation
 - [x] Inference layer and heatmap rendering
-- [ ] FastAPI endpoints and analysis history
+- [x] FastAPI endpoints and analysis history
 - [ ] Latency benchmark
 
 ## Licensing
