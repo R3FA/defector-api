@@ -63,6 +63,11 @@ class Detector:
         return float(self._model.post_processor.normalized_image_threshold)
 
     @property
+    def pixel_threshold(self) -> float:
+        """Decision boundary for the anomaly map, on the normalised scale."""
+        return float(self._model.post_processor.normalized_pixel_threshold)
+
+    @property
     def sensitivity(self) -> float:
         return float(self._model.post_processor.image_sensitivity)
 
