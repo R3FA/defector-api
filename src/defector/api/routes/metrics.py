@@ -11,7 +11,7 @@ router = APIRouter(prefix="/api/metrics", tags=["metrics"])
 
 @router.get("")
 def get_metrics() -> dict:
-    """Detector metrics, the category classifier report and the routing ablation.
+    """Everything the evaluation scripts produced.
 
     Read from disk rather than recomputed: these come from scripts that need the
     dataset, which the running service does not.
@@ -21,6 +21,8 @@ def get_metrics() -> dict:
         ("detectors", "metrics.json"),
         ("classifier", "classifier.json"),
         ("routing_ablation", "ablation.json"),
+        ("thresholds", "evaluation.json"),
+        ("latency", "latency.json"),
     ):
         path = settings.artifacts_dir / filename
         if path.is_file():

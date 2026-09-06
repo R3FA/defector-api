@@ -115,7 +115,7 @@ application. The API only loads finished models at startup.
 python scripts/01_check_data.py         # validate the dataset
 python scripts/02_train_detectors.py    # train one PatchCore model per category
 python scripts/03_train_classifier.py   # train the category classifier
-python scripts/04_evaluate.py           # metrics -> artifacts/metrics.json
+python scripts/04_evaluate.py           # threshold analysis, false positives vs negatives
 python scripts/05_benchmark_latency.py  # per-image processing time
 python scripts/06_ablation_routing.py   # category-routing ablation
 ```
@@ -161,7 +161,8 @@ scripts/               training, evaluation and benchmarking entry points
 - [x] Routing ablation
 - [x] Inference layer and heatmap rendering
 - [x] FastAPI endpoints and analysis history
-- [ ] Latency benchmark
+- [x] Threshold analysis
+- [x] Latency benchmark
 
 ## Licensing
 
