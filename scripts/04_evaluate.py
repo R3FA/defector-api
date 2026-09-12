@@ -13,8 +13,9 @@ and false negative counts trade against each other.
 
 The asymmetry matters. A false positive sends a good part for a second look,
 which costs a few seconds. A false negative ships a defective part to the
-customer. So the table also reports the strictest setting that reaches zero
-false negatives, and what it costs in false alarms.
+customer. So the table also reports the most permissive boundary that still
+reaches zero false negatives, which is the setting with the fewest false alarms
+among those that miss nothing.
 
 Usage:
     python scripts/04_evaluate.py
@@ -113,7 +114,7 @@ def main() -> int:
     at_threshold.add_column("precision", justify="right")
     at_threshold.add_column("accuracy", justify="right")
 
-    zero_fn = Table(title="strictest boundary reaching zero false negatives")
+    zero_fn = Table(title="highest boundary that still misses nothing")
     zero_fn.add_column("category")
     zero_fn.add_column("boundary", justify="right")
     zero_fn.add_column("sensitivity", justify="right")
@@ -145,8 +146,8 @@ def main() -> int:
             matrix = confusion(scores, labels, boundary)
             sweep.append({"threshold": boundary, **matrix, **rates(matrix)})
 
-        # Lowering the boundary is stricter, so the first entry with fn == 0 is
-        # the least aggressive setting that misses nothing.
+        # A higher boundary is more permissive and produces fewer false alarms,
+        # so among the settings that miss nothing the highest one is the cheapest.
         perfect = [entry for entry in sweep if entry["fn"] == 0]
         best = max(perfect, key=lambda e: e["threshold"]) if perfect else None
         if best:

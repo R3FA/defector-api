@@ -1,6 +1,7 @@
 """Upload an image and get a verdict."""
 
 import logging
+from pathlib import Path
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
@@ -23,15 +24,18 @@ SessionDep = Annotated[Session, Depends(get_session)]
 router = APIRouter(prefix="/api/analyze", tags=["analyze"])
 
 
-def _run(upload: ValidatedUpload, category: str | None) -> Analysis:
-    """Blocking: validation, routing, inference, rendering, and both files saved.
+def _run(upload: ValidatedUpload, category: str | None) -> tuple[Analysis, list[Path]]:
+    """Blocking: routing, inference, rendering, and both files saved.
 
     Executed in a worker thread. torch.inference_mode is thread-local, so it is
     entered inside Detector.detect rather than out here.
-    """
-    original_path = settings.uploads_dir / upload.filename
-    upload.image.save(original_path)
 
+    Analysis runs before anything is written, so an upload the classifier cannot
+    route leaves nothing behind. The paths are returned so the caller can remove
+    them if the database insert then fails; otherwise a crash between writing
+    the files and committing the row would orphan both with nothing referencing
+    them.
+    """
     analysis = registry.analyse(
         to_tensor(upload.image),
         upload.image,
@@ -39,6 +43,10 @@ def _run(upload: ValidatedUpload, category: str | None) -> Analysis:
         heatmap_name=f"{upload.stem}.png",
     )
     detection = analysis.detection
+
+    original_path = settings.uploads_dir / upload.filename
+    upload.image.save(original_path)
+    written = [original_path, analysis.heatmap_path]
 
     return Analysis(
         category=analysis.category,
@@ -51,7 +59,7 @@ def _run(upload: ValidatedUpload, category: str | None) -> Analysis:
         duration_ms=detection.duration_ms,
         original_filename=upload.filename,
         heatmap_filename=analysis.heatmap_path.name,
-    )
+    ), written
 
 
 @router.post(
@@ -84,7 +92,7 @@ async def analyze(
     # event loop free while this one runs.
     async with inference_slots:
         try:
-            row = await run_in_threadpool(_run, upload, category)
+            row, written = await run_in_threadpool(_run, upload, category)
         except UnknownCategoryError as error:
             prediction = error.prediction
             raise HTTPException(
@@ -100,4 +108,14 @@ async def analyze(
                 },
             ) from None
 
-    return AnalysisOut.of(create(session, row))
+    try:
+        stored = create(session, row)
+    except Exception:
+        # The files are referenced by nothing if the row never lands, so remove
+        # them rather than leaving them to accumulate.
+        for path in written:
+            path.unlink(missing_ok=True)
+        logger.exception("failed to record analysis; removed %d orphaned file(s)", len(written))
+        raise
+
+    return AnalysisOut.of(stored)

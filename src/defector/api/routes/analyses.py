@@ -3,6 +3,7 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import Path as PathParam
 from fastapi.responses import FileResponse
 from sqlmodel import Session
 
@@ -18,6 +19,11 @@ from defector.data.repository import category_summary, daily_rates, get, list_an
 from defector.settings import settings
 
 SessionDep = Annotated[Session, Depends(get_session)]
+
+# SQLite stores a signed 64-bit INTEGER. Without an upper bound a larger id
+# reaches the driver and raises OverflowError, which surfaces as a 500 instead
+# of a validation error. ge=1 also rejects 0 and negatives, which no row can have.
+AnalysisId = Annotated[int, PathParam(ge=1, le=2**63 - 1)]
 
 router = APIRouter(prefix="/api/analyses", tags=["analyses"])
 
@@ -64,7 +70,7 @@ def get_stats(
 
 
 @router.get("/{analysis_id}", response_model=AnalysisOut)
-def get_one(analysis_id: int, session: SessionDep) -> AnalysisOut:
+def get_one(analysis_id: AnalysisId, session: SessionDep) -> AnalysisOut:
     row = get(session, analysis_id)
     if row is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail="analysis not found")
@@ -72,12 +78,12 @@ def get_one(analysis_id: int, session: SessionDep) -> AnalysisOut:
 
 
 @router.get("/{analysis_id}/original", response_class=FileResponse)
-def get_original(analysis_id: int, session: SessionDep) -> FileResponse:
+def get_original(analysis_id: AnalysisId, session: SessionDep) -> FileResponse:
     return _serve(session, analysis_id, "original")
 
 
 @router.get("/{analysis_id}/heatmap", response_class=FileResponse)
-def get_heatmap(analysis_id: int, session: SessionDep) -> FileResponse:
+def get_heatmap(analysis_id: AnalysisId, session: SessionDep) -> FileResponse:
     return _serve(session, analysis_id, "heatmap")
 
 

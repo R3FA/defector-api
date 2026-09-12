@@ -127,6 +127,13 @@ uvicorn defector.api.app:app --reload
 # interactive docs at http://localhost:8000/docs
 ```
 
+Run the tests. They use a throwaway database and storage directory, so they
+never touch analyses made by hand:
+
+```bash
+pytest
+```
+
 ## Configuration
 
 Every path, hyperparameter and limit lives in `src/defector/settings.py` and can
