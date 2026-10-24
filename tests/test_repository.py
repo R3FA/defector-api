@@ -19,7 +19,7 @@ def session() -> Session:
             session.delete(row)
         session.commit()
 
-        now = datetime.now(UTC).replace(tzinfo=None)
+        now = datetime.now(UTC)
         # screw: 2 defective, 3 good.  metal_nut: 1 defective, 4 good.
         for category, defective, good in (("screw", 2, 3), ("metal_nut", 1, 4)):
             for index in range(defective + good):

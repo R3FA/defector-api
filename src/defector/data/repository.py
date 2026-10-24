@@ -102,8 +102,10 @@ def daily_rates(session: Session, *, days: int = 30) -> list[DailyRate]:
 
     Grouping is done in Python rather than SQL because SQLite stores naive
     datetimes and date bucketing there would depend on the stored text format.
+    The bound must be timezone-aware: SQLModel's UTCDateTime rejects naive values
+    and reads stored ones back as UTC.
     """
-    since = datetime.now(UTC).replace(tzinfo=None) - timedelta(days=days)
+    since = datetime.now(UTC) - timedelta(days=days)
     rows = session.exec(
         select(Analysis.created_at, Analysis.is_defective).where(Analysis.created_at >= since)
     ).all()
