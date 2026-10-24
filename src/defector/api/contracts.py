@@ -98,3 +98,9 @@ class AmbiguousCategory(BaseModel):
     confidence: float
     probabilities: dict[str, float]
     categories: list[str]
+
+
+class AmbiguousCategoryResponse(BaseModel):
+    """The 409 body as sent: HTTPException wraps the payload in "detail"."""
+
+    detail: AmbiguousCategory

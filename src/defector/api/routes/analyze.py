@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, s
 from fastapi.concurrency import run_in_threadpool
 from sqlmodel import Session
 
-from defector.api.contracts import AmbiguousCategory, AnalysisOut
+from defector.api.contracts import AmbiguousCategoryResponse, AnalysisOut
 from defector.api.deps import inference_slots
 from defector.data.database import get_session
 from defector.data.entities import Analysis
@@ -66,7 +66,7 @@ def _run(upload: ValidatedUpload, category: str | None) -> tuple[Analysis, list[
     "",
     response_model=AnalysisOut,
     status_code=status.HTTP_201_CREATED,
-    responses={409: {"model": AmbiguousCategory}},
+    responses={409: {"model": AmbiguousCategoryResponse}},
 )
 async def analyze(
     session: SessionDep,

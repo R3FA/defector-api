@@ -7,6 +7,7 @@ import pytest
 from fastapi.testclient import TestClient
 from PIL import Image
 
+from defector.api.contracts import AmbiguousCategoryResponse
 from defector.settings import settings
 
 
@@ -70,6 +71,8 @@ def test_explicit_category_skips_routing(client: TestClient) -> None:
 def test_unroutable_image_asks_the_caller_to_choose(client: TestClient) -> None:
     response = client.post("/api/analyze", files={"file": ("n.png", _noise_png(), "image/png")})
     assert response.status_code == 409
+    # The body must match what /docs advertises for 409.
+    AmbiguousCategoryResponse.model_validate(response.json())
     detail = response.json()["detail"]
     assert set(detail["probabilities"]) == set(settings.categories)
     assert detail["confidence"] < settings.category_confidence_threshold
