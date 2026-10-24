@@ -88,8 +88,12 @@ def get_heatmap(analysis_id: AnalysisId, session: SessionDep) -> FileResponse:
 
 
 def _serve(session: Session, analysis_id: int, kind: str) -> FileResponse:
-    """FileResponse adds Content-Length, Last-Modified and ETag, so the browser
-    caches these and the history view does not refetch them."""
+    """FileResponse adds Content-Length, Last-Modified and ETag, which let the
+    browser cache the images heuristically. It does not answer a conditional
+    request with 304, so an expired entry is downloaded again in full.
+
+    Cache-Control immutable would be wrong here: SQLite reuses row ids after the
+    database is reset, and a cached image would then show under the wrong id."""
     row = get(session, analysis_id)
     if row is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail="analysis not found")
