@@ -39,15 +39,15 @@ Three part categories from MVTec AD are supported, each with its own model:
 | Hardware | CPU only. No CUDA needed |
 | Disk | ~6 GB (dataset ~4.9 GiB + models) |
 
-Note on Python versions: `anomalib` 2.6.0 declares support for 3.10 to 3.12 and
-its CI tests 3.10. This project runs on **3.14.7**, outside that range. Every
-dependency resolved to a `cp314` wheel except `FrEIA`, which has no wheel and
-builds cleanly from source. Imports and a PatchCore forward pass are verified.
+Note on Python versions: `anomalib` 2.7.0 declares support for 3.10 to 3.12 and
+its CI tests 3.10. This project runs on the system **3.14** (3.14.8 at the time
+of writing), outside that range. Every dependency resolves to a `cp314` wheel
+except `FrEIA`, which has no wheel and builds cleanly from source. The test
+suite and a full re-evaluation of the committed results pass on this setup.
 
-One known consequence of being off the tested path: `torch` emits
-`FutureWarning: torch.jit.script is not supported in Python 3.14+ and may break`
-on import. It is a warning today. If something fails in an unexplained way
-later, the interpreter version is the first thing to rule out.
+torch 2.14.0 printed `FutureWarning: torch.jit.script is not supported in Python
+3.14+` on import; 2.14.1 no longer does. If something fails in an unexplained
+way later, the interpreter version is still the first thing to rule out.
 
 `requirements.lock.txt` pins the exact working set, so the environment is
 reproducible regardless of what upstream claims to support.
@@ -65,7 +65,7 @@ python -m pip install --upgrade pip
 #    nvidia-* packages: on Linux the default PyPI wheel for torch is the
 #    CUDA one, and pyproject.toml pins torch, so it would resolve from there.
 pip install --index-url https://download.pytorch.org/whl/cpu \
-    torch==2.14.0 torchvision==0.29.0
+    torch==2.14.1 torchvision==0.29.1
 
 # 3. Everything else (torch is already satisfied and will not be refetched)
 pip install -e ".[dev]"
@@ -75,7 +75,7 @@ Verify:
 
 ```bash
 python -c "import anomalib, torch; print(anomalib.__version__, torch.__version__, torch.cuda.is_available())"
-# expected: 2.6.0 2.14.0+cpu False
+# expected: 2.7.0 2.14.1+cpu False
 ```
 
 ## Dataset

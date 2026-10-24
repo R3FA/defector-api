@@ -16,22 +16,31 @@ requires-python = ">=3.12"
 
 dependencies = [
     # Model and data
-    "anomalib==2.6.0",
-    "torch==2.14.0",
-    "torchvision==0.29.0",
+    "anomalib==2.7.0",
+    "torch==2.14.1",
+    "torchvision==0.29.1",
     # Web layer
-    "fastapi==0.141.1",
-    "uvicorn==0.52.4",
+    "fastapi==0.162.0",
+    "uvicorn==0.54.0",
     "python-multipart==0.0.32",
     # Database
-    "sqlmodel==0.0.42",
+    "sqlmodel==0.0.48",
+    "sqlalchemy>=2.1",
     # Configuration and classifier serialization
-    "pydantic-settings>=2.7",
-    "joblib>=1.4",
+    "pydantic>=2.14",
+    "pydantic-settings>=2.16",
+    "joblib>=1.6",
+    # Imported directly by src or scripts. They arrive transitively today and
+    # are listed so a change upstream cannot remove them.
+    "numpy>=2.5",
+    "pillow>=13.0",
+    "scikit-learn>=1.9",
+    "rich>=15.0",
 ]
 
 [project.optional-dependencies]
-dev = ["ruff>=0.9", "pytest>=8.3", "httpx>=0.28"]
+# httpx2 is what starlette's TestClient expects; httpx is deprecated there.
+dev = ["ruff>=0.17", "pytest>=9.1", "httpx2>=2.16"]
 
 [project.urls]
 Repository = "https://github.com/R3FA/defector-api"
