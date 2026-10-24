@@ -63,18 +63,26 @@ def main(argv: list[str]) -> int:
     settings.ensure_dirs()
     threads.apply()
     console.print(f"threads {threads.describe()}")
-    console.print(f"backbone {settings.backbone}  coreset {settings.coreset_sampling_ratio}")
     console.print(f"{repeats} images per category, {WARMUP} discarded warm-up passes\n")
 
     load_started = time.perf_counter()
     detectors = {c: Detector.load(c) for c in settings.categories}
     classifier = CategoryClassifier()
     load_seconds = time.perf_counter() - load_started
-    console.print(f"model load (once at startup): {load_seconds:.2f} s\n")
+    console.print(f"model load (once at startup): {load_seconds:.2f} s")
+
+    # Label the report with what the checkpoints were trained with, which can
+    # differ from the backbone configured now.
+    trained = {(d.backbone, d.coreset_sampling_ratio) for d in detectors.values()}
+    if len(trained) != 1:
+        console.print(f"[red]checkpoints disagree on their configuration: {trained}[/red]")
+        return 1
+    backbone, coreset = trained.pop()
+    console.print(f"checkpoints: backbone {backbone}  coreset {coreset}\n")
 
     report: dict[str, object] = {
-        "backbone": settings.backbone,
-        "coreset_sampling_ratio": settings.coreset_sampling_ratio,
+        "backbone": backbone,
+        "coreset_sampling_ratio": coreset,
         "threads": threads.describe(),
         "repeats_per_category": repeats,
         "model_load_seconds": round(load_seconds, 2),

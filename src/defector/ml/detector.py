@@ -58,6 +58,15 @@ class Detector:
         return cls(category, model.eval())
 
     @property
+    def backbone(self) -> str:
+        """Backbone the checkpoint was trained with, not the one configured now."""
+        return str(self._model.hparams["backbone"])
+
+    @property
+    def coreset_sampling_ratio(self) -> float:
+        return float(self._model.hparams["coreset_sampling_ratio"])
+
+    @property
     def threshold(self) -> float:
         """Decision boundary on the normalised scale, not the raw one."""
         return float(self._model.post_processor.normalized_image_threshold)

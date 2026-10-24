@@ -36,11 +36,13 @@ class Settings(BaseSettings):
     database_path: Path = ROOT / "qc.db"
 
     # --- PatchCore --------------------------------------------------------
-    # resnet18 for development (fast on CPU), wide_resnet50_2 for final numbers.
-    backbone: Literal["resnet18", "wide_resnet50_2"] = "resnet18"
+    # The committed results use wide_resnet50_2. resnet18 detects about 4x
+    # faster on CPU (artifacts/latency_resnet18.json) at a small AUROC cost.
+    backbone: Literal["resnet18", "wide_resnet50_2"] = "wide_resnet50_2"
     layers: tuple[str, ...] = ("layer2", "layer3")
-    # 1% scores the same average AUROC as 10% (Roth et al., Table S1) but is
-    # roughly 10x faster to train and to run. Matters without a GPU.
+    # 1% scores the same average AUROC as 10% (Roth et al., Table 1). Coreset
+    # selection takes a tenth of the greedy steps; inference gains far less,
+    # since the backbone pass dominates it. Matters without a GPU.
     coreset_sampling_ratio: float = 0.01
     num_neighbors: int = 9
     # The MVTecAD datamodule has no image_size argument in anomalib 2.x;

@@ -67,7 +67,9 @@ def rates(matrix: dict[str, int]) -> dict[str, float]:
     }
 
 
-def score_category(category: str) -> tuple[np.ndarray, np.ndarray, float, list[float]]:
+def score_category(
+    category: str,
+) -> tuple[np.ndarray, np.ndarray, float, list[float], Detector]:
     """Scores and labels for one category's whole test split."""
     detector = Detector.load(category)
     test_root = settings.mvtec_dir / category / "test"
@@ -85,7 +87,7 @@ def score_category(category: str) -> tuple[np.ndarray, np.ndarray, float, list[f
             labels.append(defective)
             durations.append(detection.duration_ms)
 
-    return np.asarray(scores), np.asarray(labels), detector.threshold, durations
+    return np.asarray(scores), np.asarray(labels), detector.threshold, durations, detector
 
 
 def main() -> int:
@@ -95,11 +97,11 @@ def main() -> int:
 
     settings.ensure_dirs()
     threads.apply()
-    console.print(f"backbone {settings.backbone}  coreset {settings.coreset_sampling_ratio}\n")
-
+    # Filled from the checkpoints below, not from settings: the configured
+    # backbone can differ from the one the scored models were trained with.
     report: dict[str, object] = {
-        "backbone": settings.backbone,
-        "coreset_sampling_ratio": settings.coreset_sampling_ratio,
+        "backbone": None,
+        "coreset_sampling_ratio": None,
         "categories": {},
     }
 
@@ -123,9 +125,11 @@ def main() -> int:
     zero_fn.add_column("false alarm rate", justify="right")
 
     started = time.time()
+    trained: set[tuple[str, float]] = set()
     for category in settings.categories:
         console.print(f"scoring {category} ...")
-        scores, labels, threshold, durations = score_category(category)
+        scores, labels, threshold, durations, detector = score_category(category)
+        trained.add((detector.backbone, detector.coreset_sampling_ratio))
 
         default = confusion(scores, labels, threshold)
         default_rates = rates(default)
@@ -188,6 +192,13 @@ def main() -> int:
         "part. The second table is the setting that eliminates the second kind.[/dim]"
     )
 
+    if len(trained) != 1:
+        console.print(f"[red]checkpoints disagree on their configuration: {trained}[/red]")
+        return 1
+    report["backbone"], report["coreset_sampling_ratio"] = trained.pop()
+    console.print(
+        f"\ncheckpoints: backbone {report['backbone']}  coreset {report['coreset_sampling_ratio']}"
+    )
     report["seconds"] = round(time.time() - started, 1)
     output = settings.artifacts_dir / "evaluation.json"
     output.write_text(json.dumps(report, indent=2) + "\n")

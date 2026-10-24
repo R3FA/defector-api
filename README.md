@@ -62,8 +62,8 @@ python -m pip install --upgrade pip
 
 # 2. CPU-only PyTorch FIRST.
 #    Skipping this step pulls the CUDA build and several GB of unused
-#    nvidia-* packages, because torch reaches this project transitively
-#    through lightning and would resolve from PyPI by default.
+#    nvidia-* packages: on Linux the default PyPI wheel for torch is the
+#    CUDA one, and pyproject.toml pins torch, so it would resolve from there.
 pip install --index-url https://download.pytorch.org/whl/cpu \
     torch==2.14.0 torchvision==0.29.0
 
@@ -140,7 +140,7 @@ Every path, hyperparameter and limit lives in `src/defector/settings.py` and can
 be overridden with `DEFECTOR_`-prefixed environment variables or a `.env` file:
 
 ```bash
-DEFECTOR_BACKBONE=wide_resnet50_2      # what the committed results use
+DEFECTOR_BACKBONE=resnet18             # default wide_resnet50_2 is what the committed results use
 DEFECTOR_CORESET_SAMPLING_RATIO=0.01
 DEFECTOR_TORCH_NUM_THREADS=12
 ```
