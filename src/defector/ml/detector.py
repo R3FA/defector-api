@@ -11,10 +11,8 @@ raw scale, silently produces wrong verdicts. The correct comparison is against
 ``normalized_image_threshold`` (0.5 by default), and pred_label already encodes
 exactly that, so it is what gets used here.
 
-Strictness is adjusted through ``image_sensitivity``: the effective boundary is
-``1 - image_sensitivity``, so raising sensitivity lowers the boundary and flags
-more parts as defective. In quality control a missed defect costs more than a
-good part rejected, which is the argument for tuning it upward.
+The boundary is ``1 - image_sensitivity``. The application keeps anomalib's
+default sensitivity of 0.5 and exposes no control for it.
 """
 
 import time
@@ -75,17 +73,6 @@ class Detector:
     def pixel_threshold(self) -> float:
         """Decision boundary for the anomaly map, on the normalised scale."""
         return float(self._model.post_processor.normalized_pixel_threshold)
-
-    @property
-    def sensitivity(self) -> float:
-        return float(self._model.post_processor.image_sensitivity)
-
-    def set_sensitivity(self, value: float) -> None:
-        """Higher means stricter: the effective boundary becomes 1 - value."""
-        if not 0.0 < value < 1.0:
-            msg = f"sensitivity must be in (0, 1), got {value}"
-            raise ValueError(msg)
-        self._model.post_processor.image_sensitivity = value
 
     def detect(self, image_tensor: torch.Tensor) -> Detection:
         """Score one image. Expects (1, 3, H, W) float in [0, 1].

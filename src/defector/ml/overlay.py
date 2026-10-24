@@ -75,15 +75,6 @@ def compose(
     return Image.composite(heatmap, base, alpha)
 
 
-def render_map_only(
-    anomaly_map: torch.Tensor,
-    size: tuple[int, int] | None = None,
-) -> Image.Image:
-    """The colour-mapped anomaly map on its own, without the photograph."""
-    heatmap = visualize_anomaly_map(_squeeze(anomaly_map), colormap=True, normalize=False)
-    return heatmap.convert("RGB").resize(size, Image.BILINEAR) if size else heatmap.convert("RGB")
-
-
 def _squeeze(anomaly_map: torch.Tensor) -> torch.Tensor:
     """visualize_anomaly_map expects (H, W); detections carry (1, H, W)."""
     return anomaly_map.squeeze(0) if anomaly_map.dim() == 3 else anomaly_map
