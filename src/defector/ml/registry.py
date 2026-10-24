@@ -5,9 +5,9 @@ registry is built once during application startup, keeps the three PatchCore
 detectors and the category classifier resident, and exposes a single analyse()
 call.
 
-Loading three detectors costs roughly 45 MB of checkpoints plus the shared
-backbone, which is why the API must run with a single worker: every additional
-worker process would hold its own copy of all three memory banks.
+The three wide_resnet50_2 checkpoints come to about 320 MB, each carrying its
+own copy of the backbone, which is why the API must run with a single worker:
+every additional worker process would hold its own copy of all three.
 """
 
 from dataclasses import dataclass

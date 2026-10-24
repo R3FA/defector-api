@@ -98,7 +98,7 @@ def category_summary(session: Session) -> dict[str, dict[str, int | float]]:
 
 
 def daily_rates(session: Session, *, days: int = 30) -> list[DailyRate]:
-    """Defect share per day, for the trend the history view shows.
+    """Defect share per day. Served by /api/analyses/stats; no view charts it yet.
 
     Grouping is done in Python rather than SQL because SQLite stores naive
     datetimes and date bucketing there would depend on the stored text format.

@@ -58,7 +58,7 @@ def to_tensor(image: Image.Image) -> torch.Tensor:
 
 
 def load_tensor(source: bytes | str | Path) -> tuple[torch.Tensor, Image.Image]:
-    """Convenience for the API path: returns the tensor and the decoded image.
+    """Convenience for the scripts: returns the tensor and the decoded image.
 
     The image is returned as well because the heatmap overlay needs the original
     pixels, and decoding twice would be wasteful.
