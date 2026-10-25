@@ -1,6 +1,7 @@
 """Upload an image and get a verdict."""
 
 import logging
+import time
 from pathlib import Path
 from typing import Annotated
 
@@ -15,7 +16,7 @@ from defector.data.entities import Analysis
 from defector.data.repository import create
 from defector.ml.preprocess import to_tensor
 from defector.ml.registry import UnknownCategoryError, registry
-from defector.security.upload import UploadRejected, ValidatedUpload, validate
+from defector.security.upload import UploadRejected, validate
 from defector.settings import settings
 
 logger = logging.getLogger(__name__)
@@ -24,11 +25,13 @@ SessionDep = Annotated[Session, Depends(get_session)]
 router = APIRouter(prefix="/api/analyze", tags=["analyze"])
 
 
-def _run(upload: ValidatedUpload, category: str | None) -> tuple[Analysis, list[Path]]:
-    """Blocking: routing, inference, rendering, and both files saved.
+def _run(payload: bytes, category: str | None) -> tuple[Analysis, list[Path]]:
+    """Blocking: decoding, routing, inference, rendering, and both files saved.
 
-    Executed in a worker thread. torch.inference_mode is thread-local, so it is
-    entered inside Detector.detect rather than out here.
+    Executed in a worker thread, decoding included, so none of this CPU work
+    runs on the event loop. torch.inference_mode is thread-local, so it is
+    entered inside Detector.detect rather than out here. duration_ms covers the
+    whole of it; Detection.duration_ms is the detector alone.
 
     Analysis runs before anything is written, so an upload the classifier cannot
     route leaves nothing behind. The paths are returned so the caller can remove
@@ -36,6 +39,8 @@ def _run(upload: ValidatedUpload, category: str | None) -> tuple[Analysis, list[
     the files and committing the row would orphan both with nothing referencing
     them.
     """
+    started = time.perf_counter()
+    upload = validate(payload)
     analysis = registry.analyse(
         to_tensor(upload.image),
         upload.image,
@@ -45,8 +50,13 @@ def _run(upload: ValidatedUpload, category: str | None) -> tuple[Analysis, list[
     detection = analysis.detection
 
     original_path = settings.uploads_dir / upload.filename
-    upload.image.save(original_path)
+    try:
+        upload.image.save(original_path)
+    except Exception:
+        analysis.heatmap_path.unlink(missing_ok=True)
+        raise
     written = [original_path, analysis.heatmap_path]
+    duration_ms = int((time.perf_counter() - started) * 1000)
 
     return Analysis(
         category=analysis.category,
@@ -56,7 +66,7 @@ def _run(upload: ValidatedUpload, category: str | None) -> tuple[Analysis, list[
         score=detection.score,
         threshold=detection.threshold,
         defect_area_px=detection.defect_area_px,
-        duration_ms=detection.duration_ms,
+        duration_ms=duration_ms,
         original_filename=upload.filename,
         heatmap_filename=analysis.heatmap_path.name,
     ), written
@@ -77,11 +87,6 @@ async def analyze(
 ) -> AnalysisOut:
     payload = await file.read()
 
-    try:
-        upload = validate(payload)
-    except UploadRejected as error:
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=str(error)) from None
-
     if category is not None and category not in registry.categories:
         raise HTTPException(
             status.HTTP_400_BAD_REQUEST,
@@ -92,7 +97,9 @@ async def analyze(
     # event loop free while this one runs.
     async with inference_slots:
         try:
-            row, written = await run_in_threadpool(_run, upload, category)
+            row, written = await run_in_threadpool(_run, payload, category)
+        except UploadRejected as error:
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=str(error)) from None
         except UnknownCategoryError as error:
             prediction = error.prediction
             raise HTTPException(
