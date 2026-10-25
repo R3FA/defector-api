@@ -1,8 +1,8 @@
 """Response models.
 
-SQLite stores naive datetimes, so rows come back without an offset even though
-they were written as UTC. Serialising them as-is would let a browser read them
-as local time, which is a silent hour-shift, so the offset is reattached here.
+SQLite has no timezone type. SQLModel's UTCDateTime reads stored values back as
+UTC, but a naive value would let a browser read it as local time, a silent
+hour-shift, so the serialiser stamps UTC on any value that lacks an offset.
 """
 
 from datetime import UTC, datetime

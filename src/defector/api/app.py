@@ -1,8 +1,8 @@
 """FastAPI application.
 
 Models are loaded once in the lifespan handler, not per request: three PatchCore
-memory banks plus a shared backbone take about a second to load and are then
-resident. on_event is deprecated in FastAPI and is not used, even though the
+checkpoints, each with its own copy of the backbone, take about four seconds to
+load (3.77 s measured) and are then resident. on_event is deprecated in FastAPI and is not used, even though the
 SQLModel documentation still shows it.
 
 Run with a single worker. Each additional worker process would execute this

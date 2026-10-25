@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 """Break down where processing time goes.
 
-The detector alone runs in tens of milliseconds, but an end-to-end request
-takes several times that. This measures each stage separately so the number
+The detector alone takes about 140 ms with wide_resnet50_2, but an end-to-end
+request takes two to three times that. This measures each stage separately so the number
 reported in the thesis is attributed rather than guessed, and so any future
 optimisation targets the stage that actually dominates.
 
