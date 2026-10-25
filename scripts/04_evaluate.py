@@ -42,8 +42,8 @@ SWEEP = [round(0.05 * step, 2) for step in range(2, 19)]
 
 
 def confusion(scores: np.ndarray, labels: np.ndarray, threshold: float) -> dict[str, int]:
-    """Positive means defective."""
-    predicted = scores >= threshold
+    """Positive means defective. Strict, like anomalib's own pred_label."""
+    predicted = scores > threshold
     return {
         "tp": int((predicted & (labels == 1)).sum()),
         "fp": int((predicted & (labels == 0)).sum()),
