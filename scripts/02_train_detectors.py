@@ -140,19 +140,27 @@ def main(argv: list[str]) -> int:
 
     runs = [train_one(category) for category in categories]
 
-    report = {
-        "config": {
-            "backbone": settings.backbone,
-            "layers": list(settings.layers),
-            "coreset_sampling_ratio": settings.coreset_sampling_ratio,
-            "num_neighbors": settings.num_neighbors,
-            "image_size": list(settings.image_size),
-            "center_crop_size": list(settings.center_crop_size),
-            "accelerator": "cpu",
-        },
-        "runs": runs,
+    config = {
+        "backbone": settings.backbone,
+        "layers": list(settings.layers),
+        "coreset_sampling_ratio": settings.coreset_sampling_ratio,
+        "num_neighbors": settings.num_neighbors,
+        "image_size": list(settings.image_size),
+        "center_crop_size": list(settings.center_crop_size),
+        "accelerator": "cpu",
     }
     output = settings.artifacts_dir / "metrics.json"
+
+    # Training a subset keeps the other categories' runs, as long as they were
+    # produced with the same configuration.
+    if output.is_file():
+        previous = json.loads(output.read_text())
+        if previous.get("config") == config:
+            trained = {run["category"] for run in runs}
+            kept = [run for run in previous.get("runs", []) if run["category"] not in trained]
+            runs = sorted(kept + runs, key=lambda run: settings.categories.index(run["category"]))
+
+    report = {"config": config, "runs": runs}
     output.write_text(json.dumps(report, indent=2) + "\n")
     console.rule()
     console.print(f"[green]Wrote {output.relative_to(settings.artifacts_dir.parent)}[/green]")
