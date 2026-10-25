@@ -2,9 +2,10 @@
 
 Two things have to be right for the picture to mean what a user thinks it means.
 
-Geometry: PatchCore returns the map at the pre-processor's size (224x224 here),
-while uploads are full resolution, so the map is resized back before blending
-and the highlighted region lines up with what was actually sent.
+Geometry: PatchCore returns the map at the pre-processor's size (224x224 here)
+and it covers only the centre crop of the photo. The map is resized onto that
+box, not onto the whole photo, so the highlighted region lines up with what was
+actually sent. The border outside the box is never analysed and stays as is.
 
 Opacity: the map is already normalised around the pixel threshold, where 0.5 is
 the decision boundary. Blending it uniformly paints normal regions in mid-palette
@@ -26,6 +27,7 @@ import torch
 from anomalib.visualization import visualize_anomaly_map
 from PIL import Image
 
+from defector.ml.preprocess import analysed_box
 from defector.settings import settings
 
 # Peak opacity of the heatmap where the score is at its maximum.
@@ -58,17 +60,24 @@ def compose(
 ) -> Image.Image:
     """Heatmap over the photograph, transparent below the threshold."""
     scores = _squeeze(anomaly_map)
-    heatmap = (
+    left, top, right, bottom = analysed_box(*original.size)
+    box = (right - left, bottom - top)
+
+    heatmap = Image.new("RGB", original.size)
+    heatmap.paste(
         visualize_anomaly_map(scores, colormap=True, normalize=False)
         .convert("RGB")
-        .resize(original.size, Image.BILINEAR)
+        .resize(box, Image.BILINEAR),
+        (left, top),
     )
 
     # Per-pixel weight: zero at and below the threshold, MAX_ALPHA at 1.0.
     headroom = max(1.0 - pixel_threshold, 1e-6)
     weight = ((scores.numpy() - pixel_threshold) / headroom).clip(0.0, 1.0) * MAX_ALPHA
-    alpha = Image.fromarray((weight * 255).astype(np.uint8), mode="L").resize(
-        original.size, Image.BILINEAR
+    alpha = Image.new("L", original.size, 0)
+    alpha.paste(
+        Image.fromarray((weight * 255).astype(np.uint8), mode="L").resize(box, Image.BILINEAR),
+        (left, top),
     )
 
     base = original.convert("RGB")

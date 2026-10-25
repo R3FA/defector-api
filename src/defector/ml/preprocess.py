@@ -46,6 +46,18 @@ def open_image(source: bytes | str | Path) -> Image.Image:
     return converted
 
 
+def analysed_box(width: int, height: int) -> tuple[int, int, int, int]:
+    """The part of a photo the detectors see, as (left, top, right, bottom).
+
+    The pre-processor resizes to image_size and keeps only the centre crop, so
+    the anomaly map covers this box, not the whole photo.
+    """
+    (resize_h, resize_w), (crop_h, crop_w) = settings.image_size, settings.center_crop_size
+    box_w, box_h = round(width * crop_w / resize_w), round(height * crop_h / resize_h)
+    left, top = (width - box_w) // 2, (height - box_h) // 2
+    return left, top, left + box_w, top + box_h
+
+
 def to_tensor(image: Image.Image) -> torch.Tensor:
     """RGB image to (1, 3, H, W) float32 in [0, 1].
 
