@@ -192,13 +192,14 @@ scripts/               training, evaluation and benchmarking entry points
 
 ## Licensing
 
-The **code** in this repository is licensed under the GNU General Public License
-v2.0; see [LICENSE](LICENSE).
+The **code** in this repository is licensed under the MIT License; see
+[LICENSE](LICENSE). Copyright (c) 2026 Faris Skopak.
 
 The **MVTec AD dataset** is a separate work under
 [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) and is
 **not** distributed here. It permits non-commercial use only. This project uses
-it for academic research.
+it for academic research. The MIT License covers this code only and grants no
+rights to the dataset, nor to models trained on it.
 
 If you use the dataset, cite:
 

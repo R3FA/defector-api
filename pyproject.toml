@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=68", "wheel"]
+requires = ["setuptools>=77", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,7 +7,8 @@ name = "defector-api"
 version = "0.1.0"
 description = "Automated visual quality control for machine parts using unsupervised anomaly detection (PatchCore, MVTec AD)"
 readme = "README.md"
-license = { text = "GPL-2.0-only" }
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [{ name = "Faris Skopak", email = "faris.skopak87@gmail.com" }]
 
 # Upstream anomalib declares support up to 3.12; this project runs on the
