@@ -49,9 +49,11 @@ def _run(payload: bytes, category: str | None) -> tuple[Analysis, list[Path]]:
     )
     detection = analysis.detection
 
+    # The bytes as uploaded, already proven decodable: re-encoding cost a full
+    # PNG compression per request and recompressed JPEG uploads.
     original_path = settings.uploads_dir / upload.filename
     try:
-        upload.image.save(original_path)
+        original_path.write_bytes(payload)
     except Exception:
         analysis.heatmap_path.unlink(missing_ok=True)
         raise
