@@ -6,16 +6,24 @@ detection (PatchCore, MVTec AD).
 Backend for a bachelor's thesis project at the Faculty of Information
 Technologies, University "Džemal Bijedić" in Mostar.
 
-> **Status:** in development. See [Roadmap](#roadmap) for what works today.
+> **Status:** complete for the thesis. See [Roadmap](#roadmap).
 
 ## What it does
 
 You upload a photograph of a machine part. The service returns:
 
+- the **part category**, recognised automatically; when the classifier is not
+  confident enough, the API answers 409 and the caller picks the category,
 - a **verdict** (pass / fail),
 - a **numeric anomaly score** and the decision threshold it was compared against,
-- a **heatmap** showing where the defect is,
-- the **processing time** for that image.
+- a **heatmap** showing where the defect is, over the central part of the photo
+  the model actually sees (the outer 6.25% on each side is not analysed),
+- the **defect area** in photo pixels and the **processing time** for that
+  image, from decoding to the saved files.
+
+Every analysis is stored, so past results can be listed, filtered by category
+and outcome, and reopened. The evaluation results are served for the frontend's
+metrics page.
 
 ## Why unsupervised
 
@@ -37,13 +45,14 @@ Three part categories from MVTec AD are supported, each with its own model:
 |---|---|
 | Python | 3.12 or newer |
 | Hardware | CPU only. No CUDA needed |
-| Disk | ~6 GB (dataset ~4.9 GiB + models) |
+| Disk | ~7.2 GiB: dataset 4.9, virtual environment 1.8, trained models 0.5 |
 
-Note on Python versions: `anomalib` 2.7.0 declares support for 3.10 to 3.12 and
-its CI tests 3.10. This project runs on the system **3.14** (3.14.8 at the time
-of writing), outside that range. Every dependency resolves to a `cp314` wheel
-except `FrEIA`, which has no wheel and builds cleanly from source. The test
-suite and a full re-evaluation of the committed results pass on this setup.
+Note on Python versions: `anomalib` 2.7.0 declares support for 3.10 to 3.12.
+This project runs on the system **3.14** (3.14.8 at the time of writing),
+outside that range. Every dependency installs from a prebuilt wheel (`cp314` or
+pure Python) except `FrEIA`, which is published only as a source distribution
+and builds cleanly. The test suite and a full re-evaluation of the committed
+results pass on this setup.
 
 torch 2.14.0 printed `FutureWarning: torch.jit.script is not supported in Python
 3.14+` on import; 2.14.1 no longer does. If something fails in an unexplained
@@ -109,11 +118,14 @@ Expected counts:
 ## Usage
 
 Training and evaluation run as standalone scripts, deliberately outside the web
-application. The API only loads finished models at startup.
+application. The API only loads finished models at startup. The trained models
+are not in the repository (`results/` and `artifacts/category_classifier.joblib`
+are ignored), so run scripts 01 to 03 once before starting the API. Every script
+except 01 also rewrites its results in `artifacts/`, which are committed.
 
 ```bash
 python scripts/01_check_data.py         # validate the dataset
-python scripts/02_train_detectors.py    # train one PatchCore model per category
+python scripts/02_train_detectors.py    # train one PatchCore model per category (or name a subset)
 python scripts/03_train_classifier.py   # train the category classifier
 python scripts/04_evaluate.py           # threshold analysis, false positives vs negatives
 python scripts/05_benchmark_latency.py  # per-image processing time
@@ -127,8 +139,15 @@ uvicorn defector.api.app:app --reload
 # interactive docs at http://localhost:8000/docs
 ```
 
+The port opens only after the models have loaded, which takes several seconds,
+so wait for `Uvicorn running on http://127.0.0.1:8000`. Requests sent before
+that are refused. Run a single worker: each worker would hold its own copy of
+all three models.
+
 Run the tests. They use a throwaway database and storage directory, so they
-never touch analyses made by hand:
+never touch analyses made by hand. `tests/test_api.py` starts the real
+application, so it needs the trained models and the dataset; the other tests
+need neither:
 
 ```bash
 pytest
@@ -175,6 +194,8 @@ src/defector/
 ├── api/               FastAPI app, response contracts, routes
 └── security/          upload validation
 scripts/               training, evaluation and benchmarking entry points
+tests/                 upload validation, repository and API tests
+artifacts/             committed evaluation results (JSON, CSV)
 ```
 
 ## Roadmap
