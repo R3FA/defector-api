@@ -43,9 +43,9 @@ class CategoryClassifier:
         bundle = joblib.load(path)
         self._model = bundle["classifier"]
         self.categories: list[str] = list(bundle["categories"])
-        self.threshold: float = float(
-            bundle.get("confidence_threshold", settings.category_confidence_threshold)
-        )
+        # From settings, like /api/categories and the 409 message; the bundle
+        # only records the value it was trained with.
+        self.threshold: float = settings.category_confidence_threshold
 
         extractor = resnet18(weights=ResNet18_Weights.IMAGENET1K_V1)
         extractor.fc = nn.Identity()
