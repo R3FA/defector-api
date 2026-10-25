@@ -21,7 +21,19 @@ from dataclasses import dataclass
 import torch
 from anomalib.models import Patchcore
 
+from defector.ml.preprocess import analysed_box
 from defector.settings import settings
+
+
+def photo_area(pred_mask: torch.Tensor | None, image_tensor: torch.Tensor) -> int:
+    """Flagged pixels counted in photo pixels, not in pixels of the 224x224 map."""
+    if pred_mask is None:
+        return 0
+    mask = pred_mask[0]
+    height, width = image_tensor.shape[-2:]
+    left, top, right, bottom = analysed_box(width, height)
+    scale = (right - left) / mask.shape[-1] * (bottom - top) / mask.shape[-2]
+    return round(int(mask.sum()) * scale)
 
 
 @dataclass(frozen=True, slots=True)
@@ -90,7 +102,7 @@ class Detector:
             is_defective=bool(output.pred_label[0]),
             score=float(output.pred_score[0]),
             threshold=self.threshold,
-            defect_area_px=int(output.pred_mask[0].sum()) if output.pred_mask is not None else 0,
+            defect_area_px=photo_area(output.pred_mask, image_tensor),
             duration_ms=duration_ms,
             anomaly_map=output.anomaly_map[0],
             pred_mask=output.pred_mask[0] if output.pred_mask is not None else None,
